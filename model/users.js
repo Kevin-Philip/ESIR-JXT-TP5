@@ -1,11 +1,13 @@
 const uuidv1 = require('uuid/v1')
 const tcomb = require('tcomb')
+const bcrypt = require('bcrypt')
 
 const USER = tcomb.struct({
     id: tcomb.String,
     name: tcomb.String,
     login: tcomb.String,
-    age: tcomb.Number
+    age: tcomb.Number,
+    password: tcomb.String,
 }, {strict: true})
 
 const users = [
@@ -32,18 +34,32 @@ const users = [
     }
 ]
 
+const removePasswordFromFields = (user) => {
+    let userWOPassword = Object.assign({}, user)
+    delete userWOPassword['password']
+    return userWOPassword
+}
+
+const generatePassword = async (password) => {
+    let salt = process.env.PASSWORD_SALT
+    let hashed_password = await bcrypt.hash(password, salt)
+    return hashed_password
+}
+
 const get = (id) => {
     const usersFound = users.filter((user) => user.id === id)
     return usersFound.length >= 1
-        ? usersFound[0]
+        ? removePasswordFromFields(usersFound[0])
         : undefined
 }
 
 const getAll = () => {
-    return users
+    return users.map((user) => { return removePasswordFromFields(user) })
 }
 
-const add = (user) => {
+const add = async (user) => {
+    let hashed_password = await generatePassword(user['password'])
+    user['password'] = hashed_password
     const newUser = {
         ...user,
         id: uuidv1()
@@ -53,14 +69,20 @@ const add = (user) => {
     } else {
         throw new Error('user.not.valid')
     }
-    return newUser
+    return removePasswordFromFields(newUser)
 }
 
-const update = (id, newUserProperties) => {
+const update = async (id, newUserProperties) => {
     const usersFound = users.filter((user) => user.id === id)
 
     if (usersFound.length === 1) {
         const oldUser = usersFound[0]
+
+        // Si un nouveau password est donnée
+        if(Object.keys(newUserProperties).indexOf('password') !== -1) {
+            let hashed_password = await generatePassword(newUserProperties['password'])
+            newUserProperties['password'] = hashed_password
+        }
 
         const newUser = {
             ...oldUser,
@@ -72,7 +94,7 @@ const update = (id, newUserProperties) => {
             // Object.assign permet d'éviter la suppression de l'ancien élément puis l'ajout
             // du nouveau Il assigne à l'ancien objet toutes les propriétés du nouveau
             Object.assign(oldUser, newUser)
-            return oldUser
+            return removePasswordFromFields(oldUser)
         } else {
             throw new Error('user.not.valid')
         }

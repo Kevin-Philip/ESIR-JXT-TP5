@@ -5,6 +5,8 @@ const helmet = require('helmet')
 const usersRouter = require('./routes/users-v1')
 const usersModel = require('./model/users')
 
+require('dotenv').config()
+
 const app = express()
 
 app.use(bodyParser.json())
