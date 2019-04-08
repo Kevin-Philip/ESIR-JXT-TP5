@@ -71,7 +71,7 @@ describe('Users tests', () => {
     chai
       .request(app)
       .post('/v1/users')
-      .send({name: 'Robert', login: 'roro', age: 23})
+      .send({name: 'Robert', login: 'roro', age: 23, password: 'pass'})
       .end((err, res) => {
         res
           .should
@@ -155,7 +155,7 @@ describe('Users tests', () => {
     chai
       .request(app)
       .patch('/v1/users/45745c60-7b1a-11e8-9c9c-2d42b21b1a3e')
-      .send({name: 'Robertinio'})
+      .send({name: 'Robertinio', password: 'pass'})
       .end((err, res) => {
         res
           .should
