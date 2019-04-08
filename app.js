@@ -4,6 +4,7 @@ const helmet = require('helmet')
 
 const usersRouter = require('./routes/users-v1')
 const usersModel = require('./model/users')
+const idp = require('./model/idp')
 
 require('dotenv').config()
 
