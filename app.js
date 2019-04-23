@@ -18,7 +18,7 @@ app.use(helmet({noSniff: true}))
 
 // On injecte le model dans les routers. Ceci permet de supprimer la dépendance
 // directe entre les routers et le modele
-app.use('/v1/users', usersRouter(usersModel))
+app.use('/v1/users', usersRouter(usersModel, idp))
 app.use('/v1/auth', authRouter(idp))
 
 // For unit tests

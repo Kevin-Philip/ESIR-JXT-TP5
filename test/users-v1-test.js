@@ -10,7 +10,7 @@ describe('Users tests', () => {
   let goodToken = "goodtoken" 
   let fakeToken = "fakeToken" 
 
-  before(function(done){
+  before((done) => {
     chai
     .request(app)
     .post('/v1/auth/login')

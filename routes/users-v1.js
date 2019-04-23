@@ -2,16 +2,38 @@ const express = require('express')
 const router = express.Router()
 
 let usersModel = undefined
+let idp = undefined
 
 /* Control usermodel initialisation */
 router.use((req, res, next) => {
   /* istanbul ignore if */
-  if (!usersModel) {
+  if (!usersModel || !idp) {
     res
       .status(500)
       .json({message: 'model not initialised'})
   }
   next()
+})
+
+
+/* On vérifie que l'utilisateur est connecté avant chaque requête */
+router.use((req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send()
+  }
+
+  let token = req.headers.authorization.split(' ')[1]
+  idp.verifyToken(token)
+    .then(() => {
+      next()
+    })
+    .catch(() => {
+      res.status(401).json({
+        message: "Unauthorized",
+        type: "Unauthorized",
+        code: 0
+      })
+    })
 })
 
 /* GET a specific user by id */
@@ -136,7 +158,8 @@ router.get('/', function (req, res, next) {
 })
 
 /** return a closure to initialize model */
-module.exports = (model) => {
-  usersModel = model
+module.exports = (userModel, idpModel) => {
+  usersModel = userModel
+  idp = idpModel
   return router
 }

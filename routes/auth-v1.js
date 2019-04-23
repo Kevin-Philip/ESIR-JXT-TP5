@@ -31,7 +31,7 @@ router.get('/verifyaccess', (req, res) => {
     return res.status(401).send()
   }
   let token = req.headers.authorization.split(' ')[1]
-  idp.verifyUser(token)
+  idp.verifyToken(token)
     .then(() => {
       res.status(200).json({
         message: "OK"

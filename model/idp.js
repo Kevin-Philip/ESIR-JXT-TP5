@@ -54,7 +54,7 @@ const loginUser = (username, password) => {
   })
 }
 
-const verifyUser = (token) => {
+const verifyToken = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if(err !== null) {
@@ -67,4 +67,4 @@ const verifyUser = (token) => {
 }
 
 exports.loginUser = loginUser
-exports.verifyUser = verifyUser
+exports.verifyToken = verifyToken
