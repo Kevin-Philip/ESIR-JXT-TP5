@@ -1,5 +1,4 @@
 const express = require('express')
-const jwt = require('jsonwebtoken')
 const router = express.Router()
 
 let idp = undefined
@@ -16,7 +15,36 @@ router.use((req, res, next) => {
 })
 
 router.post('/login', (req, res) => {
+  const { login: username, password } = req.body;
   
+  idp.loginUser(username, password)
+    .then((result) => {
+      res.json(result)
+    })
+    .catch((result) => {
+      res.status(401).json(result)
+    })
+})
+
+router.get('/verifyaccess', (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send()
+  }
+  let token = req.headers.authorization.split(' ')[1]
+  idp.verifyUser(token)
+    .then(() => {
+      res.status(200).json({
+        message: "OK"
+      })
+    })
+    .catch(() => {
+      res.status(401).json({
+        message: "Unauthorized",
+        type: "Unauthorized",
+        code: 0
+      })
+    })
+
 })
 
 /** return a closure to initialize model */

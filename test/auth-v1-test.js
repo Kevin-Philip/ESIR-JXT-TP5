@@ -10,7 +10,7 @@ describe('Auth tests', () => {
     chai
       .request(app)
       .post('/v1/auth/login')
-      .send({'login': 'login', 'password': 'password'})
+      .send({'login': 'pedro', 'password': 'pass'})
       .end((err, res) => {
         res
           .should
@@ -32,6 +32,7 @@ describe('Auth tests', () => {
           .should
           .have
           .property('expirity')
+        done()
       })
   })
 
@@ -39,7 +40,7 @@ describe('Auth tests', () => {
     chai
       .request(app)
       .post('/v1/auth/login')
-      .send({'login': 'login', 'password': 'fakepassword'})
+      .send({'login': 'pedro', 'password': 'fakepass'})
       .end((err, res) => {
         res
           .should
@@ -66,26 +67,35 @@ describe('Auth tests', () => {
           .should
           .have
           .property('message')
+        done()
       })
   })
 
   it('should verify access', done => {
     chai
       .request(app)
-      .get('/v1/auth/verifyaccess')
-      .set('Authorization', 'bearer goodtoken')
+      .post('/v1/auth/login')
+      .send({'login': 'pedro', 'password': 'pass'})
       .end((err, res) => {
-        res
-          .should
-          .have
-          .status(200)
-        res.should.be.json
-        res
-          .body
-          .should
-          .have
-          .property('message')
+        chai
+        .request(app)
+        .get('/v1/auth/verifyaccess')
+        .set('Authorization', `Bearer ${res.body.access_token}`)
+        .end((err, res) => {
+          res
+            .should
+            .have
+            .status(200)
+          res.should.be.json
+          res
+            .body
+            .should
+            .have
+            .property('message')
+          done()
+        })
       })
+    
   })
 
   it('should NOT verify access', done => {
@@ -119,6 +129,7 @@ describe('Auth tests', () => {
           .should
           .have
           .property('message')
+        done()
       })
   })
 })
